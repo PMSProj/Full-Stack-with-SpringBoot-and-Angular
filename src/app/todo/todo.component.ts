@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { TodoDataService } from '../service/data/todo-data.service';
+import { Todo } from '../list-todos/list-todos.component';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-todo',
@@ -6,10 +9,48 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./todo.component.css']
 })
 export class TodoComponent implements OnInit {
+   id:number
+   todo:Todo
 
-  constructor() { }
+  constructor(
+    private todoService:TodoDataService, //DI
+    private route:ActivatedRoute,
+    private router:Router
+  ) { }
 
-  ngOnInit(): void {
+  ngOnInit(){
+    this.id=this.route.snapshot.params['id'];  //params is like map and we are getting sth from the key as id
+    this.todo=new Todo(this.id,'',false,new Date())
+    if(this.id!=-1){
+    this.todoService.retrieveTodo('Prity',this.id)
+    .subscribe(
+      data=>this.todo=data
+    )
+    }
   }
 
-}
+  saveTodo(){
+    if(this.id===-1){
+      //create Todo
+      this.todoService.createTodo('Prity',this.todo)
+    .subscribe(
+      data=>{
+        console.log(data)
+        this.router.navigate(['todos'])
+      }
+    )
+  }
+    else{
+    this.todoService.updateTodo('Prity',this.id,this.todo)
+    .subscribe(
+      data=>{
+        console.log(data)
+        this.router.navigate(['todos'])
+      }
+
+    )
+    }
+  }
+  }
+
+
